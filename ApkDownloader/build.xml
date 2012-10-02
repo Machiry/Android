@@ -1,0 +1,42 @@
+<project name="ApkDownloader" default="compile">
+
+    <target name="clean">
+        <delete dir="build"/>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="build/classes"/>
+        <javac srcdir="src" destdir="build/classes" fork="true" failonerror="true" debug="true" debuglevel="source,lines,vars">
+		<classpath>
+                        <pathelement location="libs/AndroidMarketApi.jar"/>
+                        <pathelement location="libs/protobuf-java-2.4.1.jar"/>
+                        <pathelement location="libs/json-simple-1.1.1.jar"/>
+		</classpath>
+	</javac>
+    </target>
+
+    <target name="jar" depends="compile">
+        <mkdir dir="build/jar"/>
+        <jar destfile="build/jar/m3ApkDownloader.jar" basedir="build/classes">
+            <manifest>
+                <attribute name="Main-Class" value="m3.gatech.edu.ApkDownloader1.Program"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="run" depends="compile">
+        <java fork="true" classname="m3.gatech.edu.ApkDownloader1.Program">
+	<classpath>
+                        <pathelement location="build/classes"/>
+                        <pathelement location="libs/AndroidMarketApi.jar"/>
+                        <pathelement location="libs/protobuf-java-2.4.1.jar"/>
+                        <pathelement location="libs/json-simple-1.1.1.jar"/>
+		</classpath>
+	<arg value="apkdownload.properties"/>
+	<syspropertyset>
+                <propertyref builtin="all"/>
+            </syspropertyset>	
+	</java>
+    </target>
+
+</project>
