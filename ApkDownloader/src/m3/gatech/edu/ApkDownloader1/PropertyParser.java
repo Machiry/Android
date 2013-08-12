@@ -4,6 +4,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Properties;
 
 
@@ -14,10 +16,12 @@ public class PropertyParser {
 	public static String applicationSelectionGroup = "popular";
 	public static int noOfTopApplications = 20;
 	public static String appAwareToken = "";
-	public static String userName = "";
-	public static String password = "";
+	public static String curruserName = "";
+	public static String currpassword = "";
 	public static String androidId = "";
 	public static boolean useoneTimeLogin = false;
+	public static ArrayList<String> registeredAccounts = new ArrayList<String>();
+	public static ArrayList<String> passwords = new ArrayList<String>();
 	
 
 	public static boolean parsePropertiesFile(String propertiesFile) {
@@ -39,16 +43,25 @@ public class PropertyParser {
 				return false;
 			}
 			
-			userName = prop.getProperty("username");
-			if (userName == null) {
+			String temp = prop.getProperty("usernames");
+			if (temp == null) {
+				
 				displayPropertiesUsage();
 				return false;
+			} else{
+				registeredAccounts = new ArrayList<String>(Arrays.asList(temp.split(",")));
 			}
 			
-			password = prop.getProperty("password");
-			if (password == null) {
+			temp = prop.getProperty("passwords");
+			if (temp == null) {
 				displayPropertiesUsage();
 				return false;
+			} else{
+				passwords = new ArrayList<String>(Arrays.asList(temp.split(",")));
+				if(registeredAccounts.size() != passwords.size()){
+				displayPropertiesUsage();
+				return false;
+				}
 			}
 			
 			androidId = prop.getProperty("android_id");
@@ -65,8 +78,6 @@ public class PropertyParser {
 				applicationSelectionGroup = prop.getProperty("app_popularity");
 			}
 			
-		
-			String temp;
 			temp = prop.getProperty("one_time_login");
 			if (temp != null && temp.equals("1")) {
 				useoneTimeLogin = true;
@@ -87,7 +98,7 @@ public class PropertyParser {
 	}
 
 	private static void displayPropertiesUsage() {
-		System.out.println("Seems like Some Required Properties are missing. ask m4kh1ry he sucks.");
+		System.out.println("Seems like Some Required Properties are missing. ask m4kh1ry, he sucks.");
 	
 	}
 

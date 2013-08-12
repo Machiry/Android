@@ -29,6 +29,7 @@ public class Program {
 	public static int noOfAppsDownloaded = 0;
 
 	public static void main(String[] args) {
+		int currentAccountIndex = 0;
 		if (args != null && args.length != 1) {
 			printUsage();
 			return;
@@ -42,23 +43,32 @@ public class Program {
 		MarketSession session = null;
 
 		if (PropertyParser.useoneTimeLogin) {
-			session = new MarketSession(true);
-			System.out.println("Login...");
-
-			session.login(PropertyParser.userName, PropertyParser.password,
-					PropertyParser.androidId);
-
-			System.out.println("Login done");
+			session = getNewSession(currentAccountIndex);
 		}
 		// First 1. get the top apps. better be it be a list
 		HashMap<String, ArrayList<String>> appsToDownload = getAppsToDownload();
 
+		boolean accountsExhausted = false;
 		// 2. Download all the apps one by one
 		for (String cat : appsToDownload.keySet()) {
 			String targetDir = PropertyParser.baseDownloadDir + "/" + cat;
 			(new File(targetDir)).mkdirs();
 			for (String app : appsToDownload.get(cat)) {
-				downloadApp(session, app, targetDir);
+				if(!downloadApp(session, app, targetDir,currentAccountIndex)){
+					if(currentAccountIndex < PropertyParser.registeredAccounts.size()-1){
+						currentAccountIndex++;
+						if(PropertyParser.useoneTimeLogin){
+							session = getNewSession(currentAccountIndex);
+						}
+					} else{
+						System.out.println("Looks like you have reached the download limit");
+						accountsExhausted = true;
+						break;
+					}
+				}
+			}
+			if(accountsExhausted){
+				break;
 			}
 
 		}
@@ -66,6 +76,18 @@ public class Program {
 		System.out.println("Total No Of Apps Downloaded:" + noOfAppsDownloaded);
 	}
 
+	private static MarketSession getNewSession(int accountIndex){
+		PropertyParser.curruserName = PropertyParser.registeredAccounts.get(accountIndex); 
+		PropertyParser.currpassword = PropertyParser.passwords.get(accountIndex); 
+		MarketSession session = new MarketSession(true);
+		//System.out.println("Login...");
+
+		session.login(PropertyParser.curruserName, PropertyParser.currpassword,
+				PropertyParser.androidId);
+
+		//System.out.println("Login done");
+		return session;
+	}
 	private static HashMap<String, ArrayList<String>> getAppsToDownload() {
 		HashMap<String, ArrayList<String>> targetApps = new HashMap<String, ArrayList<String>>();
 		String urlTemplate = "http://dev.appaware.com/1/top.json?d=%s&t=%s&c=%d&cc=worldwide&num=%d&page=1&client_token=%s";
@@ -120,19 +142,15 @@ public class Program {
 	}
 
 	private static boolean downloadApp(MarketSession session, String appID,
-			String appDir) {
-		boolean retVal = false;
+			String appDir,int currentUserIndex) {
+		boolean retVal = true;
 		try {
 			String fileToSave = appDir + "/" + appID + ".apk";
 
 			if (!(new File(fileToSave)).exists()) {
 
 				if (!PropertyParser.useoneTimeLogin) {
-					session = new MarketSession(true);
-					// System.out.println("Login...");
-
-					session.login(PropertyParser.userName,
-							PropertyParser.password, PropertyParser.androidId);
+					session = getNewSession(currentUserIndex);
 				}
 
 				// System.out.println("Login done");
@@ -164,9 +182,10 @@ public class Program {
 				}
 				inputstream.close();
 				stream.close();
-				retVal = true;
 			}
-		} catch (Exception e) {
+		} catch(ArrayIndexOutOfBoundsException e){
+			e.printStackTrace();
+		}catch (Exception e) {
 			e.printStackTrace();
 			retVal = false;
 		}
