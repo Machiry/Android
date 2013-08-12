@@ -90,24 +90,36 @@ public class Program {
 	}
 	private static HashMap<String, ArrayList<String>> getAppsToDownload() {
 		HashMap<String, ArrayList<String>> targetApps = new HashMap<String, ArrayList<String>>();
-		String urlTemplate = "http://dev.appaware.com/1/top.json?d=%s&t=%s&c=%d&cc=worldwide&num=%d&page=1&client_token=%s";
+		boolean isResultsEmpty = false;
+		int pageNo = 0;
+		String urlTemplate = "http://dev.appaware.com/1/top.json?d=%s&t=%s&c=%d&cc=worldwide&num=%d&page=%d&client_token=%s";
 		try {
 			// For each category
 			for (int i = 1; i <= 31; i++) {
+				isResultsEmpty = false;
 				ArrayList<String> apps = new ArrayList<String>();
-				String urlToFetch = String.format(urlTemplate,
-						PropertyParser.timeFrame,
-						PropertyParser.applicationSelectionGroup, i,
-						PropertyParser.noOfTopApplications,
-						PropertyParser.appAwareToken);
-				// System.out.println(urlToFetch);
-				String jsonOutput = getHTML(urlToFetch);
-				// System.out.println(jsonOutput);
-				JSONArray results = (JSONArray) ((JSONObject) (new JSONParser())
-						.parse(jsonOutput)).get("results");
-				for (int j = 0; j < results.size(); j++) {
-					apps.add((String) ((JSONObject) results.get(j))
-							.get("package_name"));
+				pageNo = 1;
+				while(!isResultsEmpty){
+					String urlToFetch = String.format(urlTemplate,
+							PropertyParser.timeFrame,
+							PropertyParser.applicationSelectionGroup, i,
+							PropertyParser.noOfTopApplications,
+							pageNo,
+							PropertyParser.appAwareToken);
+					// System.out.println(urlToFetch);
+					String jsonOutput = getHTML(urlToFetch);
+					// System.out.println(jsonOutput);
+					JSONArray results = (JSONArray) ((JSONObject) (new JSONParser())
+							.parse(jsonOutput)).get("results");
+					for (int j = 0; j < results.size(); j++) {
+						apps.add((String) ((JSONObject) results.get(j))
+								.get("package_name"));
+					}
+					if(results.size() > 0){
+						pageNo++;
+					} else{
+						isResultsEmpty = true;
+					}
 				}
 				targetApps.put(Integer.toString(i), apps);
 			}
