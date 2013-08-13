@@ -92,7 +92,7 @@ public class Program {
 		HashMap<String, ArrayList<String>> targetApps = new HashMap<String, ArrayList<String>>();
 		boolean isResultsEmpty = false;
 		int pageNo = 0;
-		String urlTemplate = "http://dev.appaware.com/1/top.json?d=%s&t=%s&c=%d&cc=worldwide&num=%d&page=%d&client_token=%s";
+		String urlTemplate = "http://dev.appaware.com/1/top.json?d=%s&app_info=extended&t=%s&c=%d&cc=worldwide&num=%d&page=%d&client_token=%s";
 		try {
 			// For each category
 			for (int i = 1; i <= 31; i++) {
@@ -112,8 +112,12 @@ public class Program {
 					JSONArray results = (JSONArray) ((JSONObject) (new JSONParser())
 							.parse(jsonOutput)).get("results");
 					for (int j = 0; j < results.size(); j++) {
-						apps.add((String) ((JSONObject) results.get(j))
+						//We want only free apps.
+						if(((String) ((JSONObject) results.get(j))
+								.get("price")).equals("Free")){
+							apps.add((String) ((JSONObject) results.get(j))
 								.get("package_name"));
+						}
 					}
 					if(results.size() > 0){
 						pageNo++;
@@ -158,7 +162,7 @@ public class Program {
 		boolean retVal = true;
 		try {
 			String fileToSave = appDir + "/" + appID + ".apk";
-
+			retVal = true;
 			if (!(new File(fileToSave)).exists()) {
 
 				if (!PropertyParser.useoneTimeLogin) {
@@ -195,8 +199,9 @@ public class Program {
 				inputstream.close();
 				stream.close();
 			}
-		} catch(ArrayIndexOutOfBoundsException e){
-			e.printStackTrace();
+		} catch(IndexOutOfBoundsException e){
+			//System.out.println("For App:" + appID);
+			//e.printStackTrace();
 		}catch (Exception e) {
 			e.printStackTrace();
 			retVal = false;
