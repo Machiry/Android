@@ -14,8 +14,8 @@ generate the json file. The above script scraps appsgravity.org to get the list 
 To Run the script you need BeautifulSoup library to be present. You can get it from: http://www.crummy.com/software/BeautifulSoup/
 
 
-To Download from http://slideme.org/:
-=====================================
+To Download Apps from http://slideme.org/:
+=========================================
 Like google play, slideme.org is a market place hosting android apps. The script: https://github.com/Machiry/Android/blob/master/HelperScripts/DownloadFreeApksFromSlideMe.py
 can be used to download all the free apps from it.
 
