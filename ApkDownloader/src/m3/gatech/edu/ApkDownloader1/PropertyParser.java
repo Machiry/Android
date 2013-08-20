@@ -21,6 +21,7 @@ public class PropertyParser {
 	public static String androidId = "";
 	public static boolean useoneTimeLogin = false;
 	public static ArrayList<String> registeredAccounts = new ArrayList<String>();
+	public static String srcJsonFilePath = null;
 	public static ArrayList<String> passwords = new ArrayList<String>();
 	
 
@@ -87,6 +88,8 @@ public class PropertyParser {
 			if (temp != null) {
 				noOfTopApplications = Integer.parseInt(temp);
 			}
+			
+			srcJsonFilePath = prop.getProperty("appJsonFile");
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
