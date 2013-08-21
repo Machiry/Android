@@ -47,15 +47,18 @@ def slideme_getAppDownloadLinks(targetAppDownloadLinks,targetAppLinkDict,tempWor
         if targetData:
             parsed_html = BeautifulSoup(targetData)
             for childApp in parsed_html.find_all("div", { "class" : "node node-mobileapp node-page" }):
-                appName = childApp.find("h1",{"class":"title"}).get_text()
-                urlLink = childApp.find("div",{"class":"qrcode"}).find("a").get("href")
-                category = childApp.find("li",{"class":"category"}).find("a").string
-                targetKey = category.lower()
-                appName = str(appName).strip()
-                if not (targetKey in targetAppDownloadLinks):
-                    targetAppDownloadLinks[targetKey] = {}
-                if not (appName in targetAppDownloadLinks[targetKey]):
-                    targetAppDownloadLinks[targetKey][appName] = urlLink
+                try:
+                    appName = childApp.find("h1",{"class":"title"}).get_text()
+                    urlLink = childApp.find("div",{"class":"qrcode"}).find("a").get("href")
+                    category = childApp.find("li",{"class":"category"}).find("a").string
+                    targetKey = category.lower()
+                    appName = str(appName).strip()
+                    if not (targetKey in targetAppDownloadLinks):
+                        targetAppDownloadLinks[targetKey] = {}
+                    if not (appName in targetAppDownloadLinks[targetKey]):
+                        targetAppDownloadLinks[targetKey][appName] = urlLink
+                except:
+                    pass
 
 if len(sys.argv) != 3:
     print "This script scraps slideme.org to get free apps."
